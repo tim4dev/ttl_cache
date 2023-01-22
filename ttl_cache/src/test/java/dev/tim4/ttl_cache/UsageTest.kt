@@ -60,6 +60,12 @@ class UsageTest {
 
         dataSome?.id shouldBeEqualTo 1
         dataOther?.sum shouldBeEqualTo 1.0
+
+        cache.removeExpired()
+
+        cache.clearCache()
+
+        cache.size shouldBeEqualTo 0
     }
 
     // ---------------------------------------------------------------------------------------------

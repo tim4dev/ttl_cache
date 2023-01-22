@@ -120,12 +120,16 @@ cache.put(
 
 cache.put(
     key = "OtherData_key",
-    value = OtherData(description = "text", sum = 1.0),
+    value = OtherData(...),
     timeToLive = 10.minutes
 )
 
 val dataSome = cache.get<SomeData>("SomeData_key")
 val dataOther = cache.get<OtherData>("OtherData_key")
+
+cache.removeExpired() // remove all expired objects 
+
+cache.clearCache() // remove all objects, after that the cache is empty
 
 ```
 
