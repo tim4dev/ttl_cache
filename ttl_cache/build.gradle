@@ -7,13 +7,13 @@ android {
     compileSdk 32
 
     defaultConfig {
-        minSdk 23
+        minSdk 21
         targetSdk 32
 
         ext {
             verMajor = 0
             verMinor = 1
-            verPath = 0
+            verPath = 1
         }
         versionCode verMajor * 1000000 + verMinor * 1000 + verPath
         versionName String.valueOf(verMajor) + "." + String.valueOf(verMinor) + "." + String.valueOf(verPath)
