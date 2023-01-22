@@ -1,5 +1,7 @@
 # Simple Time-To-Live Cache [Android]
 
+[![](https://jitpack.io/v/tim4dev/ttl_cache.svg)](https://jitpack.io/#tim4dev/ttl_cache)
+
 Very simple in-memory key-value cache with time-to-live (TTL) support.
 
 The library uses `kotlin.time.Duration` API it provides a nice DSL to manipulate time durations.
