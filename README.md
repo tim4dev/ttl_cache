@@ -1,3 +1,4 @@
+
 # Simple Time-To-Live Cache [Android]
 
 [![](https://jitpack.io/v/tim4dev/ttl_cache.svg)](https://jitpack.io/#tim4dev/ttl_cache)
@@ -19,6 +20,7 @@ cache will try to delete objects with an expired TTL and place a new object in t
 
 The default is no cache size limit.
 
+
 # Gradle
 
 Add library to your project dependencies:
@@ -35,6 +37,7 @@ dependencies {
 }
 ```
 
+
 # Usage
 
 ```kotlin
@@ -43,12 +46,17 @@ val cache = TtlCache.Builder()
     .build()
 ```
 
-Data class, for example
+Data classes, for example
 
 ```kotlin
 data class SomeData(
     val id: Int,
     val name: String
+)
+
+data class OtherData(
+    val description: String,
+    val sum: Double
 )
 ```
 
@@ -64,7 +72,8 @@ class Repository(
         val mapKey: String,
         val ttl: Duration
     ) {
-        SOME_DATA("loadSomeData", 1.minutes + 30.seconds);
+        SOME_DATA("loadSomeData", 1.minutes + 30.seconds),
+        OTHER_DATA("loadOtherData", 5.minutes);
     }
 
     suspend fun loadSomeData(): List<SomeData>? {
@@ -78,11 +87,22 @@ class Repository(
             timeToLive = CacheType.SOME_DATA.ttl // TTL for caching the object loaded
         ) {
             // loader
-            loadRemoteData()
+            loadRemoteSomeData()
         }
     }
 
-    suspend fun loadRemoteData(): List<SomeData>? { ... }
+    suspend fun loadOtherData(): OtherData? {
+        return cache.getOrLoad(
+            key = CacheType.OTHER_DATA.mapKey,
+            timeToLive = CacheType.OTHER_DATA.ttl
+        ) {
+            loadRemoteOtherData()
+        }
+    }
+
+    suspend fun loadRemoteSomeData(): List<SomeData>? { ... }
+
+    suspend fun loadRemoteOtherData(): OtherData? { ... }
 }
 ```
 
@@ -98,7 +118,15 @@ cache.put(
     timeToLive = 5.minutes
 )
 
-val data = cache.get<SomeData>("SomeData_key")
+cache.put(
+    key = "OtherData_key",
+    value = OtherData(description = "text", sum = 1.0),
+    timeToLive = 10.minutes
+)
+
+val dataSome = cache.get<SomeData>("SomeData_key")
+val dataOther = cache.get<OtherData>("OtherData_key")
+
 ```
 
 

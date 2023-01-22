@@ -29,11 +29,14 @@ class UsageTest {
                 .build()
             val repo = Repository(cache)
 
-            val data = repo.loadSomeData()!!
+            val dataSome = repo.loadSomeData()!!
+            val dataOther = repo.loadOtherData()!!
 
-            cache.size shouldBeEqualTo 1
-            data.size shouldBeEqualTo 3
-            data[0].id shouldBeEqualTo 1
+            cache.size shouldBeEqualTo 2
+            dataSome.size shouldBeEqualTo 3
+            dataSome[0].id shouldBeEqualTo 1
+
+            dataOther.sum shouldBeEqualTo 1.0
         }
     }
 
@@ -44,10 +47,19 @@ class UsageTest {
         cache.put(
             key = "SomeData_key",
             value = SomeData(id = 1, name = "1"),
-            timeToLive = 5.minutes
+            timeToLive = 5.minutes + 30.seconds
+        )
+        cache.put(
+            key = "OtherData_key",
+            value = OtherData(description = "text", sum = 1.0),
+            timeToLive = 10.minutes
         )
 
-        val data = cache.get<SomeData>("SomeData_key")
+        val dataSome = cache.get<SomeData>("SomeData_key")
+        val dataOther = cache.get<OtherData>("OtherData_key")
+
+        dataSome?.id shouldBeEqualTo 1
+        dataOther?.sum shouldBeEqualTo 1.0
     }
 
     // ---------------------------------------------------------------------------------------------
@@ -57,6 +69,11 @@ class UsageTest {
         val name: String
     )
 
+    private data class OtherData(
+        val description: String,
+        val sum: Double
+    )
+
     private class Repository(
         private val cache: TtlCache
     ) {
@@ -64,7 +81,8 @@ class UsageTest {
             val mapKey: String,
             val ttl: Duration
         ) {
-            SOME_DATA("loadSomeData", 1.minutes + 30.seconds);
+            SOME_DATA("loadSomeData", 1.minutes + 30.seconds),
+            OTHER_DATA("loadOtherData", 5.minutes);
         }
 
         suspend fun loadSomeData(): List<SomeData>? {
@@ -78,17 +96,31 @@ class UsageTest {
                 timeToLive = CacheType.SOME_DATA.ttl // TTL for caching the object loaded
             ) {
                 // loader
-                loadRemoteData()
+                loadRemoteSomeData()
             }
         }
 
-        private suspend fun loadRemoteData(): List<SomeData>? {
+        suspend fun loadOtherData(): OtherData? {
+            return cache.getOrLoad(
+                key = CacheType.OTHER_DATA.mapKey,
+                timeToLive = CacheType.OTHER_DATA.ttl
+            ) {
+                loadRemoteOtherData()
+            }
+        }
+
+        private suspend fun loadRemoteSomeData(): List<SomeData>? {
             delay(100)
             return listOf(
                 SomeData(id = 1, name = "t"),
                 SomeData(id = 2, name = "te"),
                 SomeData(id = 3, name = "test")
             )
+        }
+
+        private suspend fun loadRemoteOtherData(): OtherData? {
+            delay(200)
+            return OtherData(description = "text", sum = 1.0)
         }
     }
 
