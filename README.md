@@ -4,6 +4,7 @@
 [![](https://jitpack.io/v/tim4dev/ttl_cache.svg)](https://jitpack.io/#tim4dev/ttl_cache)
 
 Very simple in-memory key-value cache with time-to-live (TTL) support.
+Based on `ConcurrentHashMap`.
 
 The library uses `kotlin.time.Duration` API it provides a nice DSL to manipulate time durations.
 
@@ -115,7 +116,7 @@ val cache = TtlCache.Builder().build()
 cache.put(
     key = "SomeData_key",
     value = SomeData(...),
-    timeToLive = 5.minutes
+    timeToLive = 5.minutes + 30.seconds
 )
 
 cache.put(
@@ -124,8 +125,15 @@ cache.put(
     timeToLive = 10.minutes
 )
 
+cache.put(
+    key = "AnotherData_key",
+    value = AnotherData(...),
+    timeToLive = INFINITE // TTL will never expire
+)
+
 val dataSome = cache.get<SomeData>("SomeData_key")
 val dataOther = cache.get<OtherData>("OtherData_key")
+val dataAnother = cache.get<AnotherData>("AnotherData_key")
 
 cache.removeExpired() // remove all expired objects 
 

@@ -31,8 +31,15 @@ import kotlin.time.Duration
  */
 interface TtlCache {
 
+    /**
+     * Current cache size
+     */
     val size: Int
 
+    /**
+     * If the specified [key] already exists in the cache,
+     * it will be overwritten with the new [value] and [timeToLive]
+     */
     fun put(
         key: String,
         value: Any,
@@ -60,6 +67,9 @@ interface TtlCache {
 
     fun removeExpired()
 
+    /**
+     * Remove all of the elements from the cache
+     */
     fun clearCache()
 
     interface Builder {

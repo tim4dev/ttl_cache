@@ -16,6 +16,8 @@ import kotlinx.coroutines.runBlocking
 import org.amshove.kluent.shouldBeEqualTo
 import org.junit.Test
 import kotlin.time.Duration
+import kotlin.time.Duration.Companion.INFINITE
+import kotlin.time.Duration.Companion.milliseconds
 import kotlin.time.Duration.Companion.minutes
 import kotlin.time.Duration.Companion.seconds
 
@@ -42,30 +44,43 @@ class UsageTest {
 
     @Test
     fun `simple usage example`() {
-        val cache = TtlCache.Builder().build()
+        runBlocking {
+            val cache = TtlCache.Builder().build()
 
-        cache.put(
-            key = "SomeData_key",
-            value = SomeData(id = 1, name = "1"),
-            timeToLive = 5.minutes + 30.seconds
-        )
-        cache.put(
-            key = "OtherData_key",
-            value = OtherData(description = "text", sum = 1.0),
-            timeToLive = 10.minutes
-        )
+            cache.put(
+                key = "SomeData_key",
+                value = SomeData(id = 1, name = "1"),
+                timeToLive = 10.milliseconds // 5.minutes + 30.seconds
+            )
+            cache.put(
+                key = "OtherData_key",
+                value = OtherData(description = "text", sum = 1.0),
+                timeToLive = 10.milliseconds // 10.minutes
+            )
+            cache.put(
+                key = "OtherData_INFINITE_key",
+                value = OtherData(description = "Infinite cache", sum = 123.0),
+                timeToLive = INFINITE
+            )
 
-        val dataSome = cache.get<SomeData>("SomeData_key")
-        val dataOther = cache.get<OtherData>("OtherData_key")
+            val dataSome = cache.get<SomeData>("SomeData_key")
+            val dataOther = cache.get<OtherData>("OtherData_key")
+            val dataOther2 = cache.get<OtherData>("OtherData_INFINITE_key")
 
-        dataSome?.id shouldBeEqualTo 1
-        dataOther?.sum shouldBeEqualTo 1.0
+            dataSome?.id shouldBeEqualTo 1
+            dataOther?.sum shouldBeEqualTo 1.0
+            dataOther2?.sum shouldBeEqualTo 123.0
 
-        cache.removeExpired()
+            delay(11)
 
-        cache.clearCache()
+            cache.removeExpired()
 
-        cache.size shouldBeEqualTo 0
+            cache.size shouldBeEqualTo 1
+
+            cache.clearCache()
+
+            cache.size shouldBeEqualTo 0
+        }
     }
 
     // ---------------------------------------------------------------------------------------------
