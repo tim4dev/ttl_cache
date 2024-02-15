@@ -1,5 +1,5 @@
 
-# Simple Time-To-Live Cache [Android]
+# Simple Time-To-Live Cache
 
 [![](https://jitpack.io/v/tim4dev/ttl_cache.svg)](https://jitpack.io/#tim4dev/ttl_cache)
 
